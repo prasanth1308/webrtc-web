@@ -5,6 +5,7 @@ const Demo = ({ deviceId }) => {
   const [socketId, setSocketId] = useState(null);
   const wsRef = useRef();
   const [disableJoin, setDisableJoin] = useState(false);
+  const [isPeerConnected, setPeerConnected] = useState(false);
   const remoteVideoRef = useRef();
   let peerConnection;
 
@@ -62,12 +63,21 @@ const Demo = ({ deviceId }) => {
           break;
         case EVENTS.JOIN_SUCCESS:
           setDisableJoin(true);
+          if (payload.data.autoConnect) {
+            setPeerConnected(true);
+          }
           break;
         case EVENTS.JOIN_FAILED:
           console.error("Error connecting channel", payload.data?.msg);
           break;
         case EVENTS.LEFT_CHANNEL:
           setDisableJoin(false);
+          break;
+        case EVENTS.DEVICE_CONNECTED:
+          setPeerConnected(true);
+          break;
+        case EVENTS.DEVICE_DISCONNECTED:
+          setPeerConnected(false);
           break;
         case EVENTS.DEVICE_OFFER:
           await initializePeerConnection(deviceId);
@@ -111,12 +121,13 @@ const Demo = ({ deviceId }) => {
         onClick={() =>
           sendSocketMessage("LEAVE_CHANNEL", { deviceId: deviceId })
         }
+        disabled={!disableJoin}
       >
         DISCONNECT
       </button>
 
       <br />
-      {disableJoin && (
+      {disableJoin && isPeerConnected ? (
         <>
           <h3>Remote Video</h3>
           <video
@@ -127,6 +138,9 @@ const Demo = ({ deviceId }) => {
             ref={remoteVideoRef}
           ></video>
         </>
+      ) : (
+        disableJoin &&
+        !isPeerConnected && <h4>{`Waiting for display to connect`}</h4>
       )}
     </div>
   );

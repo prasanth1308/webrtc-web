@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import * as EVENTS from "./event";
+import styles from "./demo.module.css";
 
-const Demo = ({ deviceId }) => {
+const Demo = () => {
   const [socketId, setSocketId] = useState(null);
   const wsRef = useRef();
   const [disableJoin, setDisableJoin] = useState(false);
   const [isPeerConnected, setPeerConnected] = useState(false);
+  const [searchParams] = useSearchParams();
   const remoteVideoRef = useRef();
+  const deviceId = searchParams.get("deviceId").toUpperCase() ?? "ASDFG";
   let peerConnection;
 
   const sendSocketMessage = (type, data) => {
@@ -100,11 +104,13 @@ const Demo = ({ deviceId }) => {
 
     wsRef.current = ws;
 
-    return () => ws.close();
+    return () => {
+      ws.close();
+    };
   }, []);
 
   return (
-    <div>
+    <div align="center">
       <h1>{`TAM ${deviceId} - ${socketId}`}</h1>
       <br />
 
@@ -128,19 +134,29 @@ const Demo = ({ deviceId }) => {
 
       <br />
       {disableJoin && isPeerConnected ? (
-        <>
-          <h3>Remote Video</h3>
-          <video
-            id="remoteVideo"
-            width="640"
-            height="480"
-            autoPlay
-            ref={remoteVideoRef}
-          ></video>
-        </>
+        <div className={styles.displayDiv} align="center">
+          {/* <h3>Remote Video</h3> */}
+          <div className={styles.tabOutline}>
+            <div className={styles.tabInline}>
+              <video
+                id="remoteVideo"
+                width="750"
+                height="500"
+                autoPlay
+                ref={remoteVideoRef}
+              ></video>
+            </div>
+          </div>
+        </div>
       ) : (
         disableJoin &&
-        !isPeerConnected && <h4>{`Waiting for display to connect`}</h4>
+        !isPeerConnected && (
+          <div className={styles.displayDiv}>
+            <p
+              style={{ color: "grey", fontSize: 25 }}
+            >{`Waiting for display to connect...`}</p>
+          </div>
+        )
       )}
     </div>
   );

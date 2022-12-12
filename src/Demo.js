@@ -10,8 +10,14 @@ const Demo = () => {
   const [isPeerConnected, setPeerConnected] = useState(false);
   const [searchParams] = useSearchParams();
   const remoteVideoRef = useRef();
-  const deviceId = searchParams.get("deviceId").toUpperCase() ?? "ASDFG";
+  const deviceId = searchParams.get("deviceId")?.toUpperCase() ?? "ASDFG";
   let peerConnection;
+
+  const waitForSocketOpen = async (ws) => {
+    while (ws.readyState !== ws.OPEN) {
+      return;
+    }
+  };
 
   const sendSocketMessage = (type, data) => {
     const message = { type, data };
@@ -53,7 +59,8 @@ const Demo = () => {
 
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8888");
-    ws.onopen = (event) => {
+    ws.onopen = async (event) => {
+      await waitForSocketOpen(ws);
       sendSocketMessage(EVENTS.INIT, {});
     };
 
@@ -64,6 +71,7 @@ const Demo = () => {
       switch (payload.type) {
         case EVENTS.INIT_SUCCESS:
           setSocketId(payload.data?.id);
+          sendSocketMessage("JOIN_CHANNEL", { deviceId: deviceId });
           break;
         case EVENTS.JOIN_SUCCESS:
           setDisableJoin(true);
@@ -114,23 +122,23 @@ const Demo = () => {
       <h1>{`TAM ${deviceId} - ${socketId}`}</h1>
       <br />
 
-      <button
+      {/* <button
         onClick={() =>
           sendSocketMessage("JOIN_CHANNEL", { deviceId: deviceId })
         }
         disabled={disableJoin}
       >
         CONNECT TO DISPLAY
-      </button>
+      </button> */}
 
-      <button
+      {/* <button
         onClick={() =>
           sendSocketMessage("LEAVE_CHANNEL", { deviceId: deviceId })
         }
         disabled={!disableJoin}
       >
         DISCONNECT
-      </button>
+      </button> */}
 
       <br />
       {disableJoin && isPeerConnected ? (

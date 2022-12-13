@@ -118,29 +118,17 @@ const Demo = () => {
   }, []);
 
   return (
-    <div align="center">
-      <h1>{`TAM ${deviceId} - ${socketId}`}</h1>
-      <br />
-
-      {/* <button
-        onClick={() =>
-          sendSocketMessage("JOIN_CHANNEL", { deviceId: deviceId })
-        }
-        disabled={disableJoin}
-      >
-        CONNECT TO DISPLAY
-      </button> */}
-
-      {/* <button
-        onClick={() =>
-          sendSocketMessage("LEAVE_CHANNEL", { deviceId: deviceId })
-        }
-        disabled={!disableJoin}
-      >
-        DISCONNECT
-      </button> */}
-
-      <br />
+    <div style={{display:"flex"}}>
+      <div style={{flex:"1",display:"flex",justifyContent:"center",alignItems:"center",flexDirection:"column"}}>
+        <div>
+          <h1>TAM</h1>
+        </div>
+        <div>
+          <h3 style={{marginLeft:"50px"}}>Device Id : {deviceId}</h3>
+          <h3 style={{marginLeft:"50px"}}>Socket Id : {socketId}</h3>
+        </div>
+      </div>
+      <div style={{flex:"2"}}>
       {disableJoin && isPeerConnected ? (
         <div className={styles.displayDiv} align="center">
           {/* <h3>Remote Video</h3> */}
@@ -166,6 +154,24 @@ const Demo = () => {
           </div>
         )
       )}
+      </div>
+      {/* <button
+        onClick={() =>
+          sendSocketMessage("JOIN_CHANNEL", { deviceId: deviceId })
+        }
+        disabled={disableJoin}
+      >
+        CONNECT TO DISPLAY
+      </button> */}
+
+      {/* <button
+        onClick={() =>
+          sendSocketMessage("LEAVE_CHANNEL", { deviceId: deviceId })
+        }
+        disabled={!disableJoin}
+      >
+        DISCONNECT
+      </button> */}
     </div>
   );
 };

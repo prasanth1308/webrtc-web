@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import * as EVENTS from "./event";
 import styles from "./demo.module.css";
-
 const Demo = () => {
   const [socketId, setSocketId] = useState(null);
   const wsRef = useRef();
@@ -12,31 +11,47 @@ const Demo = () => {
   const remoteVideoRef = useRef();
   const deviceId = searchParams.get("deviceId")?.toUpperCase() ?? "ASDFG";
   let peerConnection;
-
   const waitForSocketOpen = async (ws) => {
     while (ws.readyState !== ws.OPEN) {
       return;
     }
   };
-
   const sendSocketMessage = (type, data) => {
     const message = { type, data };
     wsRef.current.send(JSON.stringify(message));
   };
-
   const initializePeerConnection = async (deviceId) => {
+    // const config = {
+    //   iceServers: [{ urls: ["stun:stun1.l.google.com:19302"] }],
+    // };
     const config = {
-      iceServers: [{ urls: ["stun:stun1.l.google.com:19302"] }],
+      iceServers: [
+        {
+          urls: "stun:relay.metered.ca:80",
+        },
+        {
+          urls: "turn:relay.metered.ca:80",
+          username: "bf4d3e74b01669d87f18b11c",
+          credential: "NNZiqapqcRttpZKx",
+        },
+        {
+          urls: "turn:relay.metered.ca:443",
+          username: "bf4d3e74b01669d87f18b11c",
+          credential: "NNZiqapqcRttpZKx",
+        },
+        {
+          urls: "turn:relay.metered.ca:443?transport=tcp",
+          username: "bf4d3e74b01669d87f18b11c",
+          credential: "NNZiqapqcRttpZKx",
+        },
+      ],
     };
     peerConnection = new RTCPeerConnection(config);
-
     peerConnection.onicecandidate = ({ candidate }) => {
       if (!candidate) return;
-
       console.log("peerConnection::icecandidate", candidate);
       sendSocketMessage(EVENTS.ICECANDIDATE, { deviceId, candidate });
     };
-
     peerConnection.oniceconnectionstatechange = () => {
       console.log(
         "peerConnection::iceconnectionstatechange newState=",
@@ -48,7 +63,6 @@ const Demo = () => {
         wsRef.current.close();
       }
     };
-
     peerConnection.ontrack = ({ track }) => {
       console.log("peerConnection::track", track);
       const remoteMediaStream = new MediaStream();
@@ -56,22 +70,20 @@ const Demo = () => {
       remoteVideoRef.current.srcObject = remoteMediaStream;
     };
   };
-
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8888");
+    const ws = new WebSocket("ws://webrtc-signal-server.herokuapp.com");
+    //const ws = new WebSocket("ws://localhost:8888");
     ws.onopen = async (event) => {
       await waitForSocketOpen(ws);
       sendSocketMessage(EVENTS.INIT, {});
     };
-
     ws.onmessage = async (event) => {
       console.log(event);
       const payload = JSON.parse(event.data);
-
       switch (payload.type) {
         case EVENTS.INIT_SUCCESS:
           setSocketId(payload.data?.id);
-          sendSocketMessage("JOIN_CHANNEL", { deviceId: deviceId });
+          //sendSocketMessage("JOIN_CHANNEL", { deviceId: deviceId });
           break;
         case EVENTS.JOIN_SUCCESS:
           setDisableJoin(true);
@@ -96,10 +108,8 @@ const Demo = () => {
           await peerConnection.setRemoteDescription(
             new RTCSessionDescription(payload.data?.offer)
           );
-
           const answer = await peerConnection.createAnswer();
           await peerConnection.setLocalDescription(answer);
-
           sendSocketMessage(EVENTS.TAM_ANSWER, { deviceId, answer });
           break;
         case EVENTS.ICECANDIDATE:
@@ -109,14 +119,11 @@ const Demo = () => {
           console.warn("unknown event ", payload.type);
       }
     };
-
     wsRef.current = ws;
-
     return () => {
       ws.close();
     };
   }, []);
-
   return (
     <div style={{display:"flex"}}>
       <div style={{flex:"1",display:"flex",justifyContent:"center",alignItems:"center",flexDirection:"column"}}>
@@ -175,5 +182,4 @@ const Demo = () => {
     </div>
   );
 };
-
 export default Demo;

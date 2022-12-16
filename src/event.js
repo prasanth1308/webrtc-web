@@ -16,3 +16,6 @@ export const DEVICE_CONNECTED = "PEER_CONNECTED";
 export const DEVICE_DISCONNECTED = "PEER_DISCONNECTED";
 
 export const ICECANDIDATE = "ICECANDIDATE";
+export const HOME = "HOME";
+export const BACK = "BACK";
+export const RECENTS = "RECENTS";

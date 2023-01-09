@@ -63,6 +63,7 @@ const Demo = () => {
 
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8888");
+    //const ws = new WebSocket("ws://webrtc-signal-server.herokuapp.com/");
     ws.onopen = async (event) => {
       await waitForSocketOpen(ws);
       sendSocketMessage(EVENTS.INIT, {});
@@ -75,6 +76,9 @@ const Demo = () => {
       switch (payload.type) {
         case EVENTS.INIT_SUCCESS:
           setSocketId(payload.data?.id);
+          break;
+        case EVENTS.PONG:
+          console.log("Pong Receieved");
           break;
         case EVENTS.JOIN_SUCCESS:
           setDisableJoin(true);
@@ -114,60 +118,64 @@ const Demo = () => {
     };
 
     wsRef.current = ws;
-
     return () => {
+      console.log("calling unmount");
       ws.close();
     };
   }, []);
 
-  console.log("DisableConnect",disableJoin)
+  setInterval(() => {
+    sendSocketMessage(EVENTS.PING, {});
+  }, 55000);
+
+  console.log("DisableConnect", disableJoin);
 
   return (
-    <div style={{padding:"0 50px"}}>
-      <div style={{display:"flex",justifyContent:"space-around"}}>
-         <h1>TAM REMOTE ASSIST</h1>
-         <p style={{fontSize:"24px"}}>Device Id : {deviceId}</p>
+    <div style={{ padding: "0 50px" }}>
+      <div style={{ display: "flex", justifyContent: "space-around" }}>
+        <h1>TAM REMOTE ASSIST</h1>
+        <p style={{ fontSize: "24px" }}>Device Id : {deviceId}</p>
       </div>
-      <div style={{display:"flex",justifyContent:"center"}}>
-      {disableJoin && isPeerConnected && (
-        <div className={styles.displayDiv} align="center">
-          <div className={styles.tabOutline}>
-            <div className={styles.tabInline}>
-              <video
-                id="remoteVideo"
-                width="900"
-                height="400"
-                autoPlay
-                ref={remoteVideoRef}
-              ></video>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        {disableJoin && isPeerConnected && (
+          <div className={styles.displayDiv} align="center">
+            <div className={styles.tabOutline}>
+              <div className={styles.tabInline}>
+                <video
+                  id="remoteVideo"
+                  width="900"
+                  height="400"
+                  autoPlay
+                  ref={remoteVideoRef}
+                ></video>
+              </div>
             </div>
           </div>
-        </div>
-      )} 
-      {( disableJoin && !isPeerConnected && (
+        )}
+        {disableJoin && !isPeerConnected && (
           <div className={styles.displayDiv}>
-            <p className={styles.placeholderText}>{`Waiting for display to connect...`}</p>
+            <p
+              className={styles.placeholderText}
+            >{`Waiting for display to connect...`}</p>
           </div>
-        )
-      )}
-      {( !disableJoin && (
+        )}
+        {!disableJoin && (
           <div className={styles.displayDiv}>
             <p className={styles.placeholderText}>{`Connect to Display`}</p>
           </div>
-        )
-      )}
+        )}
       </div>
       <div className={styles.flexWithPadding}>
-         <div className={styles.flexWithGap}>
-         <button
+        <div className={styles.flexWithGap}>
+          <button
             className={styles.connectBtn}
             onClick={() =>
-              sendSocketMessage("BUTTON_EVENTS", { eventType : EVENTS.BACK })
+              sendSocketMessage("BUTTON_EVENTS", { eventType: EVENTS.BACK })
             }
             disabled={false}
           >
             {EVENTS.BACK}
-          </button> 
+          </button>
           <button
             className={styles.connectBtn}
             onClick={() =>
@@ -176,7 +184,7 @@ const Demo = () => {
             disabled={false}
           >
             {EVENTS.HOME}
-          </button> 
+          </button>
           <button
             className={styles.connectBtn}
             onClick={() =>
@@ -185,9 +193,16 @@ const Demo = () => {
             disabled={false}
           >
             {EVENTS.RECENTS}
-          </button> 
-         </div>
-         <div style={{display: "flex",justifyContent:"space-around",flex:"1",gap:"10px"}}>
+          </button>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-around",
+            flex: "1",
+            gap: "10px",
+          }}
+        >
           <button
             className={styles.connectBtn}
             onClick={() =>
@@ -196,7 +211,7 @@ const Demo = () => {
             disabled={disableJoin}
           >
             CONNECT TO DISPLAY
-          </button> 
+          </button>
 
           <button
             className={styles.disconnectBtn}
@@ -206,8 +221,8 @@ const Demo = () => {
             disabled={!disableJoin}
           >
             DISCONNECT
-          </button> 
-         </div>
+          </button>
+        </div>
       </div>
     </div>
 

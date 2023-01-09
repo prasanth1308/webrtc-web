@@ -84,8 +84,8 @@ const Demo = () => {
   };
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8888");
-    //const ws = new WebSocket("ws://webrtc-signal-server.herokuapp.com/");
+    // const ws = new WebSocket("ws://localhost:8888");
+    const ws = new WebSocket("wss://webrtc-signal-server.herokuapp.com");
     ws.onopen = async (event) => {
       await waitForSocketOpen(ws);
       sendSocketMessage(EVENTS.INIT, {});
@@ -197,7 +197,7 @@ const Demo = () => {
           </div>
         )}
       </div>
-      <div className={styles.flexWithPadding}>
+      {/* <div className={styles.flexWithPadding}>
             <NavigateBeforeIcon 
               color="black" 
               fontSize="inherit" 
@@ -222,30 +222,7 @@ const Demo = () => {
                 sendSocketMessage("BUTTON_EVENTS", { eventType: EVENTS.RECENTS })
               }
             />
-          {/* </button>  */}
-         {/* </div> */}
-          {/* <div style={{display: "flex",justifyContent:"space-around",flex:"1",gap:"10px"}}>
-          <button
-            className={styles.connectBtn}
-            onClick={() =>
-              sendSocketMessage("JOIN_CHANNEL", { deviceId: deviceId })
-            }
-            disabled={disableJoin}
-          >
-            CONNECT TO DISPLAY
-          </button>
-
-          <button
-            className={styles.disconnectBtn}
-            onClick={() =>
-              sendSocketMessage("LEAVE_CHANNEL", { deviceId: deviceId })
-            }
-            disabled={!disableJoin}
-          >
-            DISCONNECT
-          </button> 
-          </div> */}
-      </div>
+      </div> */}
     </div>
   );
 };

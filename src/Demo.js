@@ -33,7 +33,26 @@ const Demo = () => {
 
   const initializePeerConnection = async (deviceId) => {
     const config = {
-      iceServers: [{ urls: ["stun:stun1.l.google.com:19302"] }],
+      iceServers: [
+        {
+          urls: "stun:relay.metered.ca:80",
+        },
+        {
+          urls: "turn:relay.metered.ca:80",
+          username: "bf4d3e74b01669d87f18b11c",
+          credential: "NNZiqapqcRttpZKx",
+        },
+        {
+          urls: "turn:relay.metered.ca:443",
+          username: "bf4d3e74b01669d87f18b11c",
+          credential: "NNZiqapqcRttpZKx",
+        },
+        {
+          urls: "turn:relay.metered.ca:443?transport=tcp",
+          username: "bf4d3e74b01669d87f18b11c",
+          credential: "NNZiqapqcRttpZKx",
+        },
+      ],
     };
     peerConnection = new RTCPeerConnection(config);
 

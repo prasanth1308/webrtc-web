@@ -38,6 +38,8 @@
 
 .connectBtn {
   appearance: none;
+  height: 40px;
+  width: 120px;
   background-color: #0063a3  ;
   border: 1px solid rgba(27, 31, 35, .15);
   border-radius: 6px;
@@ -59,6 +61,7 @@
   touch-action: manipulation;
   vertical-align: middle;
   white-space: nowrap;
+  margin-top: 8px;
 }
 
 .connectBtn:focus:not(:focus-visible):not(.focus-visible) {
@@ -122,12 +125,13 @@
 .flexWithGap{
   flex:3;
   display:flex;
-  gap:10px;
 }
 
 .flexWithPadding{
   display: flex;
-  padding:0 180px;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
 }
 
 .placeholderText{

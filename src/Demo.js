@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import * as EVENTS from "./event";
 import styles from "./demo.module.css";
-
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import HomeIcon from '@mui/icons-material/Home';
+import CropDinIcon from '@mui/icons-material/CropDin';
 const Demo = () => {
   const [socketId, setSocketId] = useState(null);
   const wsRef = useRef();
   const [disableJoin, setDisableJoin] = useState(false);
   const [isPeerConnected, setPeerConnected] = useState(false);
+  const [isConnect,setIsConnect] = useState(true);
   const [searchParams] = useSearchParams();
   const remoteVideoRef = useRef();
   const deviceId = searchParams.get("deviceId")?.toUpperCase() ?? "ASDFG";
@@ -120,13 +123,27 @@ const Demo = () => {
     };
   }, []);
 
-  console.log("DisableConnect",disableJoin)
+  const handleConnect = () =>{
+    setIsConnect(false);
+    sendSocketMessage("JOIN_CHANNEL", { deviceId: deviceId })
+  };
+
+
+  const handleDisConnect = () =>{
+    setIsConnect(true);
+    sendSocketMessage("LEAVE_CHANNEL", { deviceId: deviceId })
+  };
 
   return (
-    <div style={{padding:"0 50px"}}>
+    <div style={{padding:"0 25px"}}>
       <div style={{display:"flex",justifyContent:"space-around"}}>
-         <h1>TAM REMOTE ASSIST</h1>
-         <p style={{fontSize:"24px"}}>Device Id : {deviceId}</p>
+         <p style={{fontSize:"18px"}}>Device Id : {deviceId}</p>
+         <button
+            className={styles.connectBtn}
+            onClick={isConnect ?()=> handleConnect() : ()=> handleDisConnect()}
+          >
+            {isConnect ? "CONNECT" : "DISCONNECT"}
+          </button> 
       </div>
       <div style={{display:"flex",justifyContent:"center"}}>
       {disableJoin && isPeerConnected && (
@@ -158,36 +175,33 @@ const Demo = () => {
       )}
       </div>
       <div className={styles.flexWithPadding}>
-         <div className={styles.flexWithGap}>
-         <button
-            className={styles.connectBtn}
-            onClick={() =>
-              sendSocketMessage("BUTTON_EVENTS", { eventType : EVENTS.BACK })
-            }
-            disabled={false}
-          >
-            {EVENTS.BACK}
-          </button> 
-          <button
-            className={styles.connectBtn}
-            onClick={() =>
-              sendSocketMessage("BUTTON_EVENTS", { eventType: EVENTS.HOME })
-            }
-            disabled={false}
-          >
-            {EVENTS.HOME}
-          </button> 
-          <button
-            className={styles.connectBtn}
-            onClick={() =>
-              sendSocketMessage("BUTTON_EVENTS", { eventType: EVENTS.RECENTS })
-            }
-            disabled={false}
-          >
-            {EVENTS.RECENTS}
-          </button> 
-         </div>
-         <div style={{display: "flex",justifyContent:"space-around",flex:"1",gap:"10px"}}>
+            <NavigateBeforeIcon 
+              color="black" 
+              fontSize="inherit" 
+              style={{"fontSize":"50px", "cursor":"pointer"}}
+              onClick={() =>
+                sendSocketMessage("BUTTON_EVENTS", { eventType : EVENTS.BACK })
+              }
+            />
+            <HomeIcon 
+              color="black" 
+              fontSize="inherit" 
+              style={{"fontSize":"40px" , "cursor":"pointer"}}
+              onClick={() =>
+                sendSocketMessage("BUTTON_EVENTS", { eventType: EVENTS.HOME })
+              }
+            />
+            <CropDinIcon 
+              color="black" 
+              fontSize="inherit" 
+              style={{"fontSize":"40px", "cursor":"pointer"}}
+              onClick={() =>
+                sendSocketMessage("BUTTON_EVENTS", { eventType: EVENTS.RECENTS })
+              }
+            />
+          {/* </button>  */}
+         {/* </div> */}
+          {/* <div style={{display: "flex",justifyContent:"space-around",flex:"1",gap:"10px"}}>
           <button
             className={styles.connectBtn}
             onClick={() =>
@@ -207,65 +221,9 @@ const Demo = () => {
           >
             DISCONNECT
           </button> 
-         </div>
+          </div> */}
       </div>
     </div>
-
-    // <div style={{display:"flex"}}>
-    //   <div style={{flex:"1",display:"flex",justifyContent:"center",alignItems:"center",flexDirection:"column"}}>
-    //     <div>
-    //       <h1>TAM</h1>
-    //     </div>
-    //     <div>
-    //       <h3 style={{marginLeft:"50px"}}>Device Id : {deviceId}</h3>
-    //       <h3 style={{marginLeft:"50px"}}>Socket Id : {socketId}</h3>
-    //     </div>
-    //   </div>
-    //   <div style={{flex:"2"}}>
-    //   {disableJoin && isPeerConnected ? (
-    //     <div className={styles.displayDiv} align="center">
-    //       {/* <h3>Remote Video</h3> */}
-    //       <div className={styles.tabOutline}>
-    //         <div className={styles.tabInline}>
-    //           <video
-    //             id="remoteVideo"
-    //             width="750"
-    //             height="500"
-    //             autoPlay
-    //             ref={remoteVideoRef}
-    //           ></video>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   ) : (
-    //     disableJoin &&
-    //     !isPeerConnected && (
-    //       <div className={styles.displayDiv}>
-    //         <p
-    //           style={{ color: "grey", fontSize: 25 }}
-    //         >{`Waiting for display to connect...`}</p>
-    //       </div>
-    //     )
-    //   )}
-    //   </div>
-    //   {/* <button
-    //     onClick={() =>
-    //       sendSocketMessage("JOIN_CHANNEL", { deviceId: deviceId })
-    //     }
-    //     disabled={disableJoin}
-    //   >
-    //     CONNECT TO DISPLAY
-    //   </button> */}
-
-    //   {/* <button
-    //     onClick={() =>
-    //       sendSocketMessage("LEAVE_CHANNEL", { deviceId: deviceId })
-    //     }
-    //     disabled={!disableJoin}
-    //   >
-    //     DISCONNECT
-    //   </button> */}
-    // </div>
   );
 };
 

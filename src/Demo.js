@@ -66,6 +66,7 @@ const Demo = () => {
 
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8888");
+    //const ws = new WebSocket("ws://webrtc-signal-server.herokuapp.com/");
     ws.onopen = async (event) => {
       await waitForSocketOpen(ws);
       sendSocketMessage(EVENTS.INIT, {});
@@ -78,6 +79,9 @@ const Demo = () => {
       switch (payload.type) {
         case EVENTS.INIT_SUCCESS:
           setSocketId(payload.data?.id);
+          break;
+        case EVENTS.PONG:
+          console.log("Pong Receieved");
           break;
         case EVENTS.JOIN_SUCCESS:
           setDisableJoin(true);
@@ -117,8 +121,8 @@ const Demo = () => {
     };
 
     wsRef.current = ws;
-
     return () => {
+      console.log("calling unmount");
       ws.close();
     };
   }, []);
@@ -145,34 +149,34 @@ const Demo = () => {
             {isConnect ? "CONNECT" : "DISCONNECT"}
           </button> 
       </div>
-      <div style={{display:"flex",justifyContent:"center"}}>
-      {disableJoin && isPeerConnected && (
-        <div className={styles.displayDiv} align="center">
-          <div className={styles.tabOutline}>
-            <div className={styles.tabInline}>
-              <video
-                id="remoteVideo"
-                width="900"
-                height="400"
-                autoPlay
-                ref={remoteVideoRef}
-              ></video>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        {disableJoin && isPeerConnected && (
+          <div className={styles.displayDiv} align="center">
+            <div className={styles.tabOutline}>
+              <div className={styles.tabInline}>
+                <video
+                  id="remoteVideo"
+                  width="900"
+                  height="400"
+                  autoPlay
+                  ref={remoteVideoRef}
+                ></video>
+              </div>
             </div>
           </div>
-        </div>
-      )} 
-      {( disableJoin && !isPeerConnected && (
+        )}
+        {disableJoin && !isPeerConnected && (
           <div className={styles.displayDiv}>
-            <p className={styles.placeholderText}>{`Waiting for display to connect...`}</p>
+            <p
+              className={styles.placeholderText}
+            >{`Waiting for display to connect...`}</p>
           </div>
-        )
-      )}
-      {( !disableJoin && (
+        )}
+        {!disableJoin && (
           <div className={styles.displayDiv}>
             <p className={styles.placeholderText}>{`Connect to Display`}</p>
           </div>
-        )
-      )}
+        )}
       </div>
       <div className={styles.flexWithPadding}>
             <NavigateBeforeIcon 
@@ -210,7 +214,7 @@ const Demo = () => {
             disabled={disableJoin}
           >
             CONNECT TO DISPLAY
-          </button> 
+          </button>
 
           <button
             className={styles.disconnectBtn}

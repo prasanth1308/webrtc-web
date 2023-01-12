@@ -175,7 +175,7 @@ const Demo = () => {
               <div className={styles.tabInline}>
                 <video
                   id="remoteVideo"
-                  width="900"
+                  width="640"
                   height="400"
                   autoPlay
                   ref={remoteVideoRef}
